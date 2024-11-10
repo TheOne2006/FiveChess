@@ -1,4 +1,4 @@
-#include "main.h"
+#include <MyFiveChess.h>
 
 int main() {
     initiation();

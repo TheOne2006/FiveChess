@@ -1,25 +1,7 @@
 #include <graphics.h>		
 #include <conio.h>
 #include <iostream>
-
-using namespace std;
-
-// 这一部分是维护整个棋盘的内部核心数据
-struct board {
-	int board[16][16];
-
-	// 判断某两个点的颜色是否相同
-	bool judge_dire(int x, int y, int i, int j);
-
-	// 判断某个点是否为胜子
-	bool judge_point(int x, int y);
-
-    // 判断整个棋盘是否有胜者
-	int judge();
-
-    // 修改某个点的颜色
-	int modify(int x, int y, int k);
-};
+#include <board.h>
 
 // 这一部分是为了在棋盘核心和图像间建立坐标联系
 struct point {
