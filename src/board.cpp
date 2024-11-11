@@ -103,11 +103,15 @@ int board::judge() {
     return 0;
 }
 
-int board::modify(int x, int y, int k) {
+bool board::modify(int x, int y, int k) {
     if (board[x][y])
         return false;
-    else
-        board[x][y] = k;
+    else {
+        board[x][y] = k, now++, p = now;
+        for(int i = 0; i < 15; i++) 
+            for(int j = 0; j < 15; j++)
+                allBoard[p][i][j] = board[x][y];
+    }
     return true;
 }
 
@@ -115,4 +119,19 @@ int board::get(int x, int y) {
     return board[x][y];
 }
 
+// 返回当前在的步数
+int board::getNowBoard() {
+    return now;
+}
 
+int board::getMaxBoard() {
+    return p;
+}
+
+// 将现有的棋盘更改为某一步棋盘
+void board::modifyNowBoard(int h) {
+    now = h;
+    for(int i = 0; i < 15; i++)
+        for(int j = 0; j < 15; j++) 
+            board[i][j] = allBoard[now][i][j];
+}

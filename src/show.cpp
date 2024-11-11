@@ -1,4 +1,4 @@
-﻿#include <MyFiveChess.h>
+﻿#include <show.h>
 
 // 一些公共变量
 board core;
