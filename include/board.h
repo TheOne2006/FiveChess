@@ -35,4 +35,17 @@ struct board {
 
 	// 返回历史最大数
 	int getMaxBoard();
+
+	// 赋予初始棋盘
+	bool initiate(int a[16][16]);
+};
+
+// 这一部分是为了在棋盘核心和图像间建立坐标联系
+struct point {
+	const int startX = 22, startY = 22, dis = 35, R = 8, edgeDis = 10;
+	int x = 0, y = 0;
+	int dx, dy;
+
+    // 构造函数，根据坐标确定棋盘上的位置
+	bool initiation();
 };

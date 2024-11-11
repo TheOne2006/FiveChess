@@ -57,5 +57,8 @@
   "C_Cpp_Runner.useLinkTimeOptimization": false,
   "C_Cpp_Runner.msvcSecureNoWarnings": false,
   "makefile.makefilePath": "D:\\WorkSpace\\FiveChess",
-  "makefile.makePath": "D:\\TDM-GCC-64\\bin\\make.exe"
+  "makefile.makePath": "D:\\TDM-GCC-64\\bin\\make.exe",
+  "files.associations": {
+    "*.tcc": "cpp"
+  }
 }

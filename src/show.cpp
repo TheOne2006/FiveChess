@@ -1,31 +1,8 @@
-﻿#include <show.h>
+﻿#include "show.h"
 
 // 一些公共变量
 board core;
 IMAGE chess_board;
-
-// 这一部分是为了在棋盘核心和图像间建立坐标联系
-bool point::initiation() {
-    if (x) {
-        dx = startX + dis * (x - 1);
-        dy = startY + dis * (y - 1);
-        return 1;
-    } else {
-        int sx, sy;
-        sx = (dx - startX) / dis + 1;
-        sy = (dy - startY) / dis + 1;
-
-        x = sx + ((dx - startX - (sx - 1) * dis) * 2 > dis);
-        y = sy + ((dy - startY - (sy - 1) * dis) * 2 > dis);
-
-        if (abs(startX + dis * (x - 1) - dx) > edgeDis)
-            return 0;
-        if (abs(startY + dis * (y - 1) - dy) > edgeDis)
-            return 0;
-        printf("%d %d %d %d\n", dx, dy, x, y);
-        return 1;
-    }
-}
 
 // 这一部分是对显示界面的控制
 // 重新根据core绘制整个屏幕
@@ -48,7 +25,7 @@ void print() {
 // 对界面的一个初始化
 void initiation() {
     loadimage(&chess_board,
-            _T("D:/WorkSpace/MyFiveChess/x64./Debug/pictures/board.jpg"));
+            _T("D:/WorkSpace/FiveChess/res/board.jpg"));
     initgraph(535, 535);
 
     print();
@@ -120,7 +97,14 @@ int gameStart() {
     restart();
     bool flag = 0;
     while (true) {
-        point a = getClick(flag);
+        point a;
+        if(!flag) {
+            point b = getClick(flag);
+            a.x = b.x, a.y = b.y;
+        }
+        else {
+            point b = moveNext(&core);
+        }
         core.modify(a.x, a.y, flag + 1);
         print();
         flag = !flag;
