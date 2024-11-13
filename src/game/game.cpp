@@ -1,7 +1,11 @@
-﻿#include "show.h"
+#include "game.h"
+#include <graphics.h>
+#include <conio.h>
+#include <iostream>
+using namespace myBoard;
 
 // 一些公共变量
-board core;
+myBoard::Board core;
 IMAGE chess_board;
 
 // 这一部分是对显示界面的控制
@@ -9,13 +13,13 @@ IMAGE chess_board;
 void print() {
     point n;
     cleardevice(), putimage(0, 0, &chess_board);
-    for (int i = 1; i <= 15; i++)
-        for (int j = 1; j <= 15; j++) {
-            n.x = i, n.y = j, n.initiation();
-            if (core.get(i, j) == 1) {
+    for (int i = 0; i < 15; i++)
+        for (int j = 0; j < 15; j++) {
+            n.initiationWithXY(i, j);
+            if (core.get(i, j) == 0) {
                 setfillcolor(WHITE);
                 solidcircle(n.dx, n.dy, n.R);
-            } else if (core.get(i, j) == 2) {
+            } else if (core.get(i, j) == 1) {
                 setfillcolor(BLACK);
                 solidcircle(n.dx, n.dy, n.R);
             }
@@ -24,27 +28,19 @@ void print() {
 
 // 对界面的一个初始化
 void initiation() {
-    loadimage(&chess_board,
-            _T("D:/WorkSpace/FiveChess/res/board.jpg"));
+    loadimage(&chess_board, _T("D:/WorkSpace/FiveChess/res/board.jpg"));
     initgraph(535, 535);
 
     print();
 }
 
-void restart() {
-
-    print();
-}
+void restart() { core.reset(), print(); }
 
 // 打印第一次点击的框框
 void printEdge(point p, int flag) {
     print();
     setlinestyle(PS_DASH, 2);
-    if (!flag)
-        setlinecolor(LIGHTGRAY);
-    else
-        setlinecolor(DARKGRAY);
-    p.initiation();
+    setlinecolor(DARKGRAY);
     rectangle(p.dx - p.edgeDis, p.dy + p.edgeDis, p.dx + p.edgeDis,
               p.dy - p.edgeDis);
 }
@@ -53,10 +49,10 @@ void printEdge(point p, int flag) {
 int win(bool flag) {
     HWND win = GetHWnd();
     if (flag)
-        return MessageBox(win, _T("黑色赢了"), _T("游戏结束！"),
+        return MessageBox(win, _T("black win!!"), _T("Game Over!"),
                           MB_RETRYCANCEL);
     else
-        return MessageBox(win, _T("白色赢了"), _T("游戏结束！"),
+        return MessageBox(win, _T("white win!!"), _T("Game Over!"),
                           MB_RETRYCANCEL);
 }
 
@@ -66,25 +62,20 @@ point getClick(int flag) {
     ExMessage m;
 loop1:
     m = getmessage(EX_MOUSE);
-    click1.dx = 0, click1.dy = 0;
-    if (m.message != WM_LBUTTONDOWN)
+    if (!m.lbutton) 
         goto loop1;
-    click1.dx = m.x, click1.dy = m.y;
     // 若第一次点击成功命中某个坐标
-    if (click1.initiation()) {
+    if (click1.initiationWithD(m.x, m.y)) {
     loop3:
         printEdge(click1, flag);
     loop2:
         m = getmessage(EX_MOUSE);
-        click2.dx = 0, click2.dy = 0;
-        if (m.message != WM_LBUTTONDOWN)
+        if (!m.lbutton)
             goto loop2;
-        click2.dx = m.x, click2.dy = m.y;
-        if (click2.initiation()) {
+        if (click2.initiationWithD(m.x, m.y)) {
             if (click2.x == click1.x && click2.y == click1.y)
                 return click1;
-            click1.x = click2.x, click1.y = click2.y;
-            click2.x = 0, click2.y = 0;
+            click1.initiationWithXY(click2.x, click2.y);
             goto loop3;
         } else
             goto loop2;
@@ -92,34 +83,26 @@ loop1:
         goto loop1;
 }
 
+bool isOk(point p) { return core.get(p.x, p.y) == -1; }
+
 // 这一部分是游戏的流程控制
 int gameStart() {
     restart();
     bool flag = 0;
     while (true) {
-        point a;
-        if(!flag) {
-            point b = getClick(flag);
-            a.x = b.x, a.y = b.y;
-        }
-        else {
-            point b = moveNext(&core);
-        }
-        core.modify(a.x, a.y, flag + 1);
+        point a = getClick(flag);
+        while (!isOk(a))
+            a = getClick(flag);
+        core.modify(a.x, a.y);
         print();
         flag = !flag;
-        int f = core.judge();
-        if (f == 1) {
+        int f = core.win_end();
+        if (f == 0) {
             printf("White Win\n");
             return win(0);
-        } else if (f == 2) {
+        } else if (f == 1) {
             printf("Black Win\n");
             return win(1);
         }
     }
 }
-/*
-    想法:数组一大块
-    绘制棋盘
-    判断胜负
-*/

@@ -1,5 +1,6 @@
-#include <show.h>
-
+#include<point.h>
+#include <game.h>
+#include<iostream>
 int main() {
     initiation();
 	while (true) {
