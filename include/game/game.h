@@ -5,6 +5,8 @@
 
 // 这一部分是对显示界面的控制
 // 重新根据core绘制整个屏幕
+// 一些公共变量
+myBoard::Board core;
 void print();
 
 // 对界面的一个初始化

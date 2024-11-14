@@ -1,7 +1,7 @@
 #ifndef JUDGE
 #define JUDGE
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace myBoard {
 class Board {
@@ -15,7 +15,7 @@ class Board {
     const int notOver = 2;
     const int flatFlag = 3;
     unsigned int numPieces = 0; // 现在已经下了几颗棋子
-    int undoState[225]; // 撤回的放置步
+    int undoState[225];         // 撤回的放置步
     int currentPlayer = BLACK;
     int preAction = -1;
     std::vector<int> state;
@@ -59,5 +59,5 @@ class Board {
     // modify 函数
     void modify(int x, int y);
 };
-}
+} // namespace myBoard
 #endif

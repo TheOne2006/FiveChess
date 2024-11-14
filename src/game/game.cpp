@@ -1,11 +1,11 @@
 #include "game.h"
-#include <graphics.h>
+#include "myIO.h"
 #include <conio.h>
+#include <graphics.h>
 #include <iostream>
 using namespace myBoard;
 
 // 一些公共变量
-myBoard::Board core;
 IMAGE chess_board;
 
 // 这一部分是对显示界面的控制
@@ -62,7 +62,7 @@ point getClick(int flag) {
     ExMessage m;
 loop1:
     m = getmessage(EX_MOUSE);
-    if (!m.lbutton) 
+    if (!m.lbutton)
         goto loop1;
     // 若第一次点击成功命中某个坐标
     if (click1.initiationWithD(m.x, m.y)) {
@@ -89,6 +89,10 @@ bool isOk(point p) { return core.get(p.x, p.y) == -1; }
 int gameStart() {
     restart();
     bool flag = 0;
+    // std::vector<int> last = readFromF("my.txt");
+    // for(int i = 0; i < last.size(); i++)
+    //     core.doAction(last[i]);
+    // print();
     while (true) {
         point a = getClick(flag);
         while (!isOk(a))
@@ -97,6 +101,11 @@ int gameStart() {
         print();
         flag = !flag;
         int f = core.win_end();
+        
+        // 测试代码
+        // std::string s = "my.txt";
+        // writeToF(&core, s);
+
         if (f == 0) {
             printf("White Win\n");
             return win(0);

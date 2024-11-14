@@ -7,8 +7,8 @@ CXXFLAGS	:= -std=c++17 -Wall -Wextra -g
 
 # define output directory, source directory, include directory, and lib directory
 OUTPUT	:= output
-SRC		:= src src/game src/board
-INCLUDE	:= include include/graphics include/board include/game include/json
+SRC		:= src src/game src/board src/IO
+INCLUDE	:= include include/graphics include/board include/game include/json include/IO
 LIB		:= lib
 OS		:= Windows_NT
 

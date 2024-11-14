@@ -15,7 +15,7 @@ class NextStepButton :public myButton{
     }
 };
 
-class NextStepButton :public myButton{
+class LastStepButton :public myButton{
     bool isBeTouch(int dx, int dy) {
 
     }
