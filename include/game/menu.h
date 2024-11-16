@@ -1,16 +1,20 @@
 #ifndef MYMENU_H
 #define MYMENU_H
-#include<vector>
+#include <string>
+#include <vector>
 // 实现按钮函数
 class myButton {
-    public:
-        int dx1, dx2, dy1, dy2;
-        // 是否被点击到
-        bool isBeTouch(int dx, int dy);
-        bool leftPut();
-        // 一个普遍调用的绘图函数
-        void print();
+  public:
+    // 定位
+    int dx1, dx2, dy1, dy2;
+    // 文字
+    std::string text;
+    // 是否被点击到
+    bool isBeTouch(int dx, int dy);
+    virtual bool leftPut();
+    // 一个普遍调用的绘图函数
+    virtual void print();
 };
 
-std::vector<myButton> getAllButton();
+std::vector<myButton *> getAllButton();
 #endif

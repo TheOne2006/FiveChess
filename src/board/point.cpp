@@ -26,6 +26,7 @@ bool point::initiationWithD(int px, int py) {
         return 0;
     std::printf("%d %d %d %d\n", dx, dy, x, y);
     x--, y--;
+    if(x >= 15 || y >= 15 || x < 0 || y < 0) return false;
     initiationWithXY(x, y);
     return 1;
 }

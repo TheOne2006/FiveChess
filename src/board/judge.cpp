@@ -71,6 +71,11 @@ void Board::doAction(int action) {
 
 // 撤回一次同时撤回2步
 void Board::undo() {
+    // 如果只有2个
+    if(numPieces == 2) {
+        reset();
+        return;
+    }
     // 1
     board[int(preAction / boardLen)][int(preAction % boardLen)] = EMPTY;
     state[preAction] = -1;
