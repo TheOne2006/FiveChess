@@ -108,6 +108,13 @@
     "stdexcept": "cpp",
     "streambuf": "cpp",
     "typeinfo": "cpp",
-    "fstream": "cpp"
+    "fstream": "cpp",
+    "ctime": "cpp",
+    "cassert": "cpp",
+    "cerrno": "cpp",
+    "climits": "cpp",
+    "ios": "cpp",
+    "queue": "cpp",
+    "stack": "cpp"
   }
 }

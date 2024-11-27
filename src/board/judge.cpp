@@ -9,6 +9,22 @@ using namespace std;
 
 using namespace myBoard;
 
+void Board::operator=(const myBoard::Board &B) {
+    numPieces = B.numPieces;
+    currentPlayer = B.currentPlayer;
+    availableAction.clear();
+    availableAction = B.availableAction;
+    for (size_t i = 0; i < 225; i++) {
+        undoState[i] = B.undoState[i];
+    }
+    for (size_t i = 0; i < 15; i++) {
+        for (size_t j = 0; j < 15; j++) {
+            board[i][j] = B.board[i][j];
+        }
+    }
+    state = B.state;
+}
+
 Board::Board() { reset(); }
 
 Board::Board(const Board *b) {
@@ -88,6 +104,23 @@ void Board::undo() {
     undoState[numPieces - 1] = -1;
     numPieces--;
     preAction = undoState[numPieces - 1];
+    availableAction.clear();
+    availableAction = getAvailable();
+}
+
+void Board::undoOne() {
+    if(numPieces == 1) {
+        reset();
+        return;
+    }
+    // 1
+    board[int(preAction / boardLen)][int(preAction % boardLen)] = EMPTY;
+    state[preAction] = -1;
+    undoState[numPieces - 1] = -1;
+    numPieces--;
+    preAction = undoState[numPieces - 1];
+    // 置换下棋手
+    currentPlayer = BLACK + WHITE - currentPlayer;
     availableAction.clear();
     availableAction = getAvailable();
 }
@@ -264,17 +297,20 @@ bool Board::ff_special_case(std::string &m_str, size_t pos, int f_case) {
 }
 
 bool Board::three_three() {
+    // 获取坐标
     int h = this->preAction / 15;
     int w = this->preAction % 15;
     int last_move = this->preAction;
+    // 棋盘宽度
     int width = 15;
+    // 四种三三形式
     string jt1 = "o1o11o";
     string jt2 = "o11o1o";
     string ct1 = "oo111o";
     string ct2 = "o111oo";
     int three = 0;
     string m_str;
-    size_t pos;
+    size_t pos; // 和int没区别
     int bias = min(w, 4);
     for (int i = last_move - bias; i < last_move + min(width - 1 - w, 4) + 1;
          i++) {

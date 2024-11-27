@@ -36,6 +36,8 @@ bool point::initiationWithP(int p) {
     initiationWithXY(x, y);
 }
 
-point point::operator=(const point &b) {
-    return b;
+point& point::operator=(const point &b) {
+    x = b.x, y = b.y;
+    dx = b.dx, dy = b.dy;
+    p = b.p;
 }

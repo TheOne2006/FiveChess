@@ -3,7 +3,10 @@
 #include "graphics.h"
 #include "conio.h"
 #include <point.h>
+#include <ctime>
+#include <random>
 int main() {
+    srand((unsigned)std::time(NULL));
     initiation();
     while (true) {
         if (gameStart() == IDCANCEL)

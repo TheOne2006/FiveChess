@@ -1,5 +1,5 @@
-#ifndef JUDGE
-#define JUDGE
+#ifndef JUDGE_H
+#define JUDGE_H
 #include <string>
 #include <vector>
 
@@ -33,8 +33,10 @@ class Board {
     std::vector<int> getAvailable();
     // 在此处下一个棋子
     void doAction(int action);
-    // 撤回上一步下棋
+    // 撤回上一步下棋(两步)
     void undo();
+    // 撤回一步下棋
+    void undoOne();
     int getNumPipces();
     // 游戏是否结束
     int isGameOver();
@@ -58,6 +60,8 @@ class Board {
     int get(int x, int y);
     // modify 函数
     void modify(int x, int y);
+    // 赋值函数
+    void operator=(const myBoard::Board &B);
 };
 } // namespace myBoard
 #endif

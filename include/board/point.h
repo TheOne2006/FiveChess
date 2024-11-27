@@ -18,7 +18,7 @@ struct point {
     bool initiationWithP(int p);
 
     // 等于函数重载
-    point operator=(const point &b);
+    point& operator=(const point &b);
     bool initiationWithD(int dx, int dy);
 };
 } // namespace board

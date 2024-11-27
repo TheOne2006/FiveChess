@@ -1,7 +1,9 @@
 #include "game.h"
+#include "ai.h"
 #include "menu.h"
 #include "myIO.h"
 #include <conio.h>
+#include <cstdlib>
 #include <graphics.h>
 #include <iostream>
 #include <stack>
@@ -77,10 +79,13 @@ bool isOnButton(int dx, int dy) {
     print();
 }
 
+// 撤回操作与下一步操作，对按钮的一个实现。
+// 加入ai后负责对ai核心也进行实现
 std::stack<int> actions;
 bool undo() {
     int n = core.numPieces;
-    if (n <= 1) return false;
+    if (n <= 1)
+        return false;
     actions.push(core.undoState[n - 1]);
     actions.push(core.undoState[n - 2]);
     core.undo(), print();
@@ -141,30 +146,83 @@ bool isOk(point p) { return core.get(p.x, p.y) == -1; }
 int gameStart() {
     restart();
     bool flag = 0;
+    ai::AI pl = ai::AI(1, 1);
+    ai::AI pl2 = ai::AI(0, 1);
     // std::vector<int> last = readFromF("my.txt");
     // for(int i = 0; i < last.size(); i++)
     //     core.doAction(last[i]);
     // print();
+    int f;
+    point p;
+    // core.modify(6, 6), pl.modify(6, 6), pl2.modify(6, 6);
+    print(), flag = !flag;
     while (true) {
-        point a = getClick(flag);
-        while (!isOk(a))
-            a = getClick(flag);
-        while(!actions.empty()) actions.pop();
-        core.modify(a.x, a.y);
+        // 测试人机代码
+        p = pl.getNextStep();
+        core.modify(p.x, p.y);
+        pl.modify(p.x, p.y);
+        pl2.modify(p.x, p.y);
         print();
         flag = !flag;
-        int f = core.win_end();
 
-        // 测试代码
-        // std::string s = "my.txt";
-        // writeToF(&core, s);
-
+        f = core.win_end();
         if (f == 0) {
-            printf("White Win\n");
+            printf("White Win pl2!!\n");
             return win(0);
         } else if (f == 1) {
-            printf("Black Win\n");
+            printf("Black Win pl!!\n");
             return win(1);
         }
+
+        // // 人工代码
+        // point a = getClick(flag);
+        // while (!isOk(a))
+        //     a = getClick(flag);
+        // while (!actions.empty())
+        //     actions.pop();
+        // core.modify(a.x, a.y);
+        // pl.modify(a.x, a.y);
+        // pl2.modify(a.x, a.y);
+        // print();
+        // flag = !flag;
+
+        // f = core.win_end();
+        // if (f == 0) {
+        //     printf("White Win\n");
+        //     return win(0);
+        // } else if (f == 1) {
+        //     printf("Black Win\n");
+        //     return win(1);
+        // }
+        // 测试人机代码
+        p = pl2.getNextStep();
+        core.modify(p.x, p.y);
+        pl.modify(p.x, p.y);
+        pl2.modify(p.x, p.y);
+        print();
+        flag = !flag;
+
+        f = core.win_end();
+        if (f == 0) {
+            printf("White Win pl2!!\n");
+            return win(0);
+        } else if (f == 1) {
+            printf("Black Win pl!!\n");
+            return win(1);
+        }
+        // ExMessage m = getmessage(EX_MOUSE);
+        // while (!(m.lbutton)) {
+        //     m = getmessage(EX_MOUSE);
+        // }
+
+        if(core.numPieces > 2) {
+            pl.modifyDepth(2);
+            pl2.modifyDepth(2);
+        }
+        if(core.numPieces > 27) {
+            pl.modifyDepth(1);
+            pl2.modifyDepth(1);
+        }
+
     }
 }
