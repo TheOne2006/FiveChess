@@ -84,6 +84,7 @@ class LoadButton : public myButton {
                 isBoardFile = ShowRetryCancelMessageBox();
             } else {
                 isBoardFile = false, isGame = true;
+                initiation();
                 gameLoadStart(boardFile);
             }
         }

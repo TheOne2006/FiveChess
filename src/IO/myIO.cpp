@@ -1,13 +1,13 @@
+#include <codecvt>
 #include <ctime>
 #include <fstream>
 #include <game.h>
 #include <iomanip>
 #include <iostream>
 #include <myIO.h>
+#include <shlobj.h>
 #include <string>
 #include <windows.h>
-#include <shlobj.h>
-#include <codecvt>
 using namespace my_io;
 namespace my_io {
 std::string fileDirection;
@@ -16,16 +16,16 @@ std::string fileDirection;
 
 #pragma comment(lib, "Shell32.lib")
 
-std::string WStringToString(const std::wstring& wstr) {
+std::string WStringToString(const std::wstring &wstr) {
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
     return converter.to_bytes(wstr);
 }
 
 // 转换为std::string，因为GetOpenFileNameW使用宽字符
 std::string SelectFile() {
-    OPENFILENAMEA ofn;       // common dialog box structure for ANSI
-    char szFile[MAX_PATH];  // buffer for file name
-    std::string fileName;   // result string
+    OPENFILENAMEA ofn;     // common dialog box structure for ANSI
+    char szFile[MAX_PATH]; // buffer for file name
+    std::string fileName;  // result string
     // Initialize OPENFILENAMEA
     ZeroMemory(&ofn, sizeof(ofn));
     ofn.lStructSize = sizeof(ofn);
@@ -37,7 +37,7 @@ std::string SelectFile() {
     ofn.nFilterIndex = 1;
     ofn.lpstrFileTitle = NULL;
     ofn.nMaxFileTitle = 0;
-    ofn.lpstrInitialDir = NULL; // starting directory
+    ofn.lpstrInitialDir = NULL;                        // starting directory
     ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST; // Options
     // Display the Open dialog box.
     if (GetOpenFileNameA(&ofn) == TRUE) {
@@ -62,7 +62,7 @@ std::string SelectFolder() {
     bi.ulFlags =
         BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE | BIF_USENEWUI; // 对话框选项
     bi.lpfn = NULL; // 回调函数（未使用）
-    bi.lParam = 0; // 传递给回调函数的参数（未使用）
+    bi.lParam = 0;  // 传递给回调函数的参数（未使用）
     // 显示文件夹选择对话框
     pidl = SHBrowseForFolder(&bi);
     // 如果选择了文件夹
@@ -102,20 +102,34 @@ void initiation() {
     // 找到最后一个反斜杠的位置
     size_t pos = fullPath.find_last_of("\\");
     // 提取路径部分
-    std::string fileDirection = fullPath.substr(0, pos) + "\\";
+    fileDirection = fullPath.substr(0, pos) + "\\";
 }
 
 void modifyDir(std::string s) { fileDirection = s; }
 
 const std::string code = "aZ9dFp3eG8hJk2LmNq1O0WbVcRx4Tu7YSiP";
 
+
+std::wstring string_to_wstring(const std::string& str, int codepage = CP_UTF8) {
+    int len = MultiByteToWideChar(codepage, 0, str.c_str(), -1, nullptr, 0);
+    if (len == 0) {
+        // 处理错误
+        return std::wstring();
+    }
+    std::vector<wchar_t> buf(len);
+    MultiByteToWideChar(codepage, 0, str.c_str(), -1, buf.data(), len);
+    return std::wstring(buf.begin(), buf.end() - 1); 
+    // 减1是因为MultiByteToWideChar会在末尾添加一个null终止符
+}
+
 // 存储方式很简单，每行一个操作即可
-bool writeToF(myBoard::Board *b, int kind) {
+std::wstring writeToF(myBoard::Board *b, int kind) {
     std::string fileN = fileDirection + getCurrentDate();
+    printf("FileDir:%s\nIn file:%s\n", fileDirection.c_str(), fileN.c_str());
     std::fstream file;
     file.open(fileN, std::ios::out);
     if (!file)
-        return false;
+        return L"";
     // 写入校验码内置
     file << code << std::endl;
     // 写入游戏类型
@@ -123,6 +137,7 @@ bool writeToF(myBoard::Board *b, int kind) {
     for (int i = 0; i < b->numPieces; i++)
         file << b->undoState[i] << std::endl;
     file.close();
+    return string_to_wstring(fileN);
 }
 
 // 提取后返回的是操作序列，约定第一个是游戏类型,-7表示文件不合法
@@ -132,7 +147,7 @@ std::vector<int> readFromF(std::string fileN) {
     file.open(fileN, std::ios::in);
     std::string nowCode;
     file >> nowCode;
-    if(nowCode != code) {
+    if (nowCode != code) {
         ans.push_back(-7);
         return ans;
     }

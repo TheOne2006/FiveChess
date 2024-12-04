@@ -42,7 +42,8 @@ class WriteButton : public myButton {
     }
     bool leftPut() {
         printf("Write to file\n");
-        my_io::writeToF(getCore(), getKind());
+        std::wstring message = L"文件已成功保存: " + my_io::writeToF(getCore(), getKind());
+        MessageBoxW(NULL, message.c_str(), L"信息", MB_OK);
         return false;
     }
 };

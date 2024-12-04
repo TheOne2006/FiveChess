@@ -208,8 +208,12 @@ int gameSingleStart() {
             if (a.x == -100) {
                 return -1;
             }
-            while (!isOk(a))
+            while (!isOk(a)) {
                 a = getClick(flag);
+                if (a.x == -100) {
+                    return -1;
+                }
+            }
             while (!actions.empty())
                 actions.pop();
             core.modify(a.x, a.y);
@@ -240,8 +244,12 @@ int gameTwoStart() {
         if (a.x == -100) {
             return -1;
         }
-        while (!isOk(a))
+        while (!isOk(a)) {
             a = getClick(flag);
+            if (a.x == -100) {
+                return -1;
+            }
+        }
         while (!actions.empty())
             actions.pop();
         core.modify(a.x, a.y);
@@ -266,77 +274,91 @@ int gameLoadStart(std::vector<int> steps) {
         int flag = 1, f;
         for (int i = 1; i < steps.size(); i++)
             core.doAction(steps[i]), flag = !flag;
-        // 人工代码
-        point a = getClick(flag);
-        if (a.x == -100) {
-            return -1;
-        }
-        while (!isOk(a))
-            a = getClick(flag);
-        while (!actions.empty())
-            actions.pop();
-        core.modify(a.x, a.y);
         print();
-        flag = !flag;
-
-        f = core.win_end();
-        if (f == 0) {
-            printf("White Win\n");
-            return win(0);
-        } else if (f == 1) {
-            printf("Black Win\n");
-            return win(1);
-        }
-    } else if (steps[0] == 1) {
-        aiColor = 0;
-    } else {
-        aiColor = 1;
-    }
-    // 双人对战
-    if (aiColor == 1)
-        gameKind = 2;
-    else
-        gameKind = 1;
-    int flag = 1, f;
-    ai::AI pl = ai::AI(aiColor, depth);
-    point p;
-    // core.modify(6, 6), pl.modify(6, 6), pl2.modify(6, 6);
-    for (int i = 1; i < steps.size(); i++) {
-        flag = !flag, core.doAction(steps[i]), pl.doAction(steps[i]);
-    }
-    print(), flag = !flag;
-    while (true) {
-        if (flag == aiColor) {
-            // 人机代码
-            p = pl.getNextStep();
-            core.modify(p.x, p.y);
-            pl.modify(p.x, p.y);
-            print();
-            flag = !flag;
-
-            f = core.win_end();
-        } else {
+        while (true) {
             // 人工代码
             point a = getClick(flag);
             if (a.x == -100) {
                 return -1;
             }
-            while (!isOk(a))
+            while (!isOk(a)) {
                 a = getClick(flag);
+                if (a.x == -100) {
+                    return -1;
+                }
+            }
             while (!actions.empty())
                 actions.pop();
             core.modify(a.x, a.y);
-            pl.modify(a.x, a.y);
             print();
             flag = !flag;
+
+            f = core.win_end();
+            if (f == 0) {
+                printf("White Win\n");
+                return win(0);
+            } else if (f == 1) {
+                printf("Black Win\n");
+                return win(1);
+            }
         }
-        f = core.win_end();
-        if (f == 0) {
-            printf("White Win\n");
-            return win(0);
-        } else if (f == 1) {
-            printf("Black Win\n");
-            return win(1);
+    } else {
+        if (steps[0] == 1) {
+            aiColor = 0;
+        } else {
+            aiColor = 1;
+        }
+        // 人对战AI
+        if (aiColor == 0) {
+            gameKind = 1;
+        } else {
+            gameKind = 2;
+        }
+        int flag = 1, f;
+        ai::AI pl = ai::AI(aiColor, depth);
+        point p;
+        // core.modify(6, 6), pl.modify(6, 6), pl2.modify(6, 6);
+        for (int i = 1; i < steps.size(); i++) {
+            flag = !flag, core.doAction(steps[i]), pl.doAction(steps[i]);
+        }
+        print();
+        while (true) {
+            if (flag == aiColor) {
+                // 人机代码
+                p = pl.getNextStep();
+                core.modify(p.x, p.y);
+                pl.modify(p.x, p.y);
+                print();
+                flag = !flag;
+
+                f = core.win_end();
+            } else {
+                // 人工代码
+                point a = getClick(flag);
+                if (a.x == -100) {
+                    return -1;
+                }
+                while (!isOk(a)) {
+                    a = getClick(flag);
+                    if (a.x == -100) {
+                        return -1;
+                    }
+                }
+                while (!actions.empty())
+                    actions.pop();
+                core.modify(a.x, a.y);
+                pl.modify(a.x, a.y);
+                print();
+                flag = !flag;
+            }
+            f = core.win_end();
+            if (f == 0) {
+                printf("White Win\n");
+                return win(0);
+            } else if (f == 1) {
+                printf("Black Win\n");
+                return win(1);
+            }
         }
     }
 }
