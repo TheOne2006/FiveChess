@@ -1,7 +1,7 @@
-#ifndef GAME_START
-#define GAME_SRART
-#include <point.h>
+#ifndef GAME_NOW
+#define GAME_NOW
 #include <judge.h>
+#include <point.h>
 
 // 这一部分是对显示界面的控制
 // 重新根据core绘制整个屏幕
@@ -21,11 +21,30 @@ int win(bool flag);
 myBoard::point getClick(int flag);
 
 // 这一部分是游戏的流程控制
-int gameStart();
+int gameSingleStart();
+
+// 这一部分是游戏的流程控制
+int gameTwoStart();
+
+// 这一部分是游戏的流程控制
+int gameLoadStart(std::vector<int> steps);
 
 // 撤回一步的操作
 bool undo();
 
 // 往后一步操作
 bool nextDo();
+
+// 修改深度\获取深度
+bool modifyDepth(int d);
+int getDepth();
+
+// 修改ai颜色\获取ai颜色
+int getAIColor();
+void modifyAi(int a);
+
+// 给出棋盘信息
+myBoard::Board *getCore();
+int getKind();
+
 #endif

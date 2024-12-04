@@ -10,13 +10,13 @@ class Board {
 
   public:
     const int EMPTY = -1;
-    const int BLACK = 1;
-    const int WHITE = 0;
+    const int MY_BLACK = 1;
+    const int MY_WHITE = 0;
     const int notOver = 2;
     const int flatFlag = 3;
     unsigned int numPieces = 0; // 现在已经下了几颗棋子
     int undoState[225];         // 撤回的放置步
-    int currentPlayer = BLACK;
+    int currentPlayer = MY_BLACK;
     int preAction = -1;
     std::vector<int> state;
     std::vector<int> availableAction;

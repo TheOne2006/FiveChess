@@ -12,6 +12,7 @@ bool point::initiationWithXY(int a, int b) {
 }
 
 bool point::initiationWithD(int px, int py) {
+    if(px > 535 || py > 535) return false;
     int sx, sy;
     dx = px, dy = py;
     sx = (dx - startX) / dis + 1;
@@ -24,10 +25,10 @@ bool point::initiationWithD(int px, int py) {
         return 0;
     if (std::abs(startY + dis * (y - 1) - dy) > edgeDis)
         return 0;
-    std::printf("%d %d %d %d\n", dx, dy, x, y);
     x--, y--;
     if(x >= 15 || y >= 15 || x < 0 || y < 0) return false;
     initiationWithXY(x, y);
+    std::printf("%d %d %d %d\n", dx, dy, x, y);
     return 1;
 }
 

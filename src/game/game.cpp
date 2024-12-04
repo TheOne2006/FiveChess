@@ -11,6 +11,14 @@ using namespace myBoard;
 
 // 一些公共变量
 myBoard::Board core;
+
+// 给出棋盘核心
+myBoard::Board *getCore() { return &core; }
+// 给出现在下的类型
+int gameKind = 0;
+// 游戏类型0: 双人游戏，1：单人游戏：AI执白棋，2：单人游戏：AI执黑
+int getKind() { return gameKind; }
+
 IMAGE chess_board;
 std::vector<myButton *> buttons;
 // 这一部分是对显示界面的控制
@@ -31,16 +39,12 @@ void print() {
                 solidcircle(n.dx, n.dy, n.R);
             }
         }
-    // 打印菜单
-    for (int i = 0; i < buttons.size(); i++)
-        buttons[i]->print();
 }
 
 // 对界面的一个初始化
 void initiation() {
-    loadimage(&chess_board, _T("D:/WorkSpace/FiveChess/res/board.jpg"));
-    initgraph(535, 555);
-
+    loadimage(&chess_board, _T("D:/WorkSpace/FiveChess/res/board.png"));
+    initgraph(620, 555);
     print();
 }
 
@@ -69,14 +73,23 @@ int win(bool flag) {
         return MessageBox(win, _T("white win!!"), _T("Game Over!"),
                           MB_RETRYCANCEL);
 }
-
-bool isOnButton(int dx, int dy) {
+// 0表示未点击到，1表示点击到非return，2表示点击到return
+int isOnButton(int dx, int dy) {
+    bool f1 = false, f2;
+    ;
     for (int i = 0; i < buttons.size(); i++) {
         if (buttons[i]->isBeTouch(dx, dy))
-            buttons[i]->leftPut();
+            f2 = buttons[i]->leftPut(), f1 = true;
     }
     // 点击到按钮，操作结束后需要重新刷新一次屏幕
     print();
+    if (f1) {
+        if (f2)
+            return 2;
+        else
+            return 1;
+    } else
+        return 0;
 }
 
 // 撤回操作与下一步操作，对按钮的一个实现。
@@ -106,7 +119,7 @@ point getClick(int flag) {
     ExMessage m;
 loop1:
     m = getmessage(EX_MOUSE);
-    if (!m.lbutton)
+    if (!(m.message == WM_LBUTTONDOWN))
         goto loop1;
     // 若第一次点击成功命中某个坐标
     if (click1.initiationWithD(m.x, m.y)) {
@@ -125,9 +138,14 @@ loop1:
             goto loop3;
         } else {
             // 判断是否点击到某个按钮
-            if (isOnButton(m.x, m.y)) {
+            int k = isOnButton(m.x, m.y);
+            if (k == 1) {
                 // 点击到按钮，重新到loop1
                 goto loop1;
+            } else if (k == 2) {
+                // 点击到return;
+                click1.x = -100;
+                return click1;
             } else {
                 // 什么都没点击到，继续收集第二次点击信息
                 goto loop2;
@@ -135,94 +153,190 @@ loop1:
         }
     } // 判断是否点击到某个按钮
     else {
-        isOnButton(m.x, m.y);
-        goto loop1;
+        int k = isOnButton(m.x, m.y);
+        if (k == 2) {
+            // 点击到return按钮直接返回；
+            click1.x = -100;
+            return click1;
+        } else {
+            // 什么都没点击到，继续收集点击信息
+            goto loop1;
+        }
     }
 }
 
 bool isOk(point p) { return core.get(p.x, p.y) == -1; }
 
+int depth = 2; // ai的聪明程度
+
+bool modifyDepth(int d) { depth = d; }
+
+int getDepth() { return depth; }
+
+int aiColor = 0;
+
+int getAIColor() { return aiColor; }
+
+void modifyAi(int a) { aiColor = a; }
+
 // 这一部分是游戏的流程控制
-int gameStart() {
+// point的约束，如果point的x为-1代表会退出
+int gameSingleStart() {
     restart();
-    bool flag = 0;
-    ai::AI pl = ai::AI(1, 1);
-    ai::AI pl2 = ai::AI(0, 1);
-    // std::vector<int> last = readFromF("my.txt");
-    // for(int i = 0; i < last.size(); i++)
-    //     core.doAction(last[i]);
-    // print();
-    int f;
+    if (aiColor == 1)
+        gameKind = 2;
+    else
+        gameKind = 1;
+    int flag = 1, f;
+    ai::AI pl = ai::AI(aiColor, depth);
     point p;
     // core.modify(6, 6), pl.modify(6, 6), pl2.modify(6, 6);
     print(), flag = !flag;
     while (true) {
-        // 测试人机代码
-        p = pl.getNextStep();
-        core.modify(p.x, p.y);
-        pl.modify(p.x, p.y);
-        pl2.modify(p.x, p.y);
+        if (flag == aiColor) {
+            // 人机代码
+            p = pl.getNextStep();
+            core.modify(p.x, p.y);
+            pl.modify(p.x, p.y);
+            print();
+            flag = !flag;
+
+            f = core.win_end();
+        } else {
+            // 人工代码
+            point a = getClick(flag);
+            if (a.x == -100) {
+                return -1;
+            }
+            while (!isOk(a))
+                a = getClick(flag);
+            while (!actions.empty())
+                actions.pop();
+            core.modify(a.x, a.y);
+            pl.modify(a.x, a.y);
+            print();
+            flag = !flag;
+        }
+        f = core.win_end();
+        if (f == 0) {
+            printf("White Win\n");
+            return win(0);
+        } else if (f == 1) {
+            printf("Black Win\n");
+            return win(1);
+        }
+    }
+}
+
+int gameTwoStart() {
+    restart(), gameKind = 0;
+    int flag = 1, f;
+    point p;
+    // core.modify(6, 6), pl.modify(6, 6), pl2.modify(6, 6);
+    print(), flag = !flag;
+    while (true) {
+        // 人工代码
+        point a = getClick(flag);
+        if (a.x == -100) {
+            return -1;
+        }
+        while (!isOk(a))
+            a = getClick(flag);
+        while (!actions.empty())
+            actions.pop();
+        core.modify(a.x, a.y);
         print();
         flag = !flag;
 
         f = core.win_end();
         if (f == 0) {
-            printf("White Win pl2!!\n");
+            printf("White Win\n");
             return win(0);
         } else if (f == 1) {
-            printf("Black Win pl!!\n");
+            printf("Black Win\n");
             return win(1);
         }
+    }
+}
 
-        // // 人工代码
-        // point a = getClick(flag);
-        // while (!isOk(a))
-        //     a = getClick(flag);
-        // while (!actions.empty())
-        //     actions.pop();
-        // core.modify(a.x, a.y);
-        // pl.modify(a.x, a.y);
-        // pl2.modify(a.x, a.y);
-        // print();
-        // flag = !flag;
-
-        // f = core.win_end();
-        // if (f == 0) {
-        //     printf("White Win\n");
-        //     return win(0);
-        // } else if (f == 1) {
-        //     printf("Black Win\n");
-        //     return win(1);
-        // }
-        // 测试人机代码
-        p = pl2.getNextStep();
-        core.modify(p.x, p.y);
-        pl.modify(p.x, p.y);
-        pl2.modify(p.x, p.y);
+// 游戏类型0: 双人游戏，1：单人游戏：AI执白棋，2：单人游戏：AI执黑
+int gameLoadStart(std::vector<int> steps) {
+    restart();
+    if (steps[0] == 0) {
+        int flag = 1, f;
+        for (int i = 1; i < steps.size(); i++)
+            core.doAction(steps[i]), flag = !flag;
+        // 人工代码
+        point a = getClick(flag);
+        if (a.x == -100) {
+            return -1;
+        }
+        while (!isOk(a))
+            a = getClick(flag);
+        while (!actions.empty())
+            actions.pop();
+        core.modify(a.x, a.y);
         print();
         flag = !flag;
 
         f = core.win_end();
         if (f == 0) {
-            printf("White Win pl2!!\n");
+            printf("White Win\n");
             return win(0);
         } else if (f == 1) {
-            printf("Black Win pl!!\n");
+            printf("Black Win\n");
             return win(1);
         }
-        // ExMessage m = getmessage(EX_MOUSE);
-        // while (!(m.lbutton)) {
-        //     m = getmessage(EX_MOUSE);
-        // }
+    } else if (steps[0] == 1) {
+        aiColor = 0;
+    } else {
+        aiColor = 1;
+    }
+    // 双人对战
+    if (aiColor == 1)
+        gameKind = 2;
+    else
+        gameKind = 1;
+    int flag = 1, f;
+    ai::AI pl = ai::AI(aiColor, depth);
+    point p;
+    // core.modify(6, 6), pl.modify(6, 6), pl2.modify(6, 6);
+    for (int i = 1; i < steps.size(); i++) {
+        flag = !flag, core.doAction(steps[i]), pl.doAction(steps[i]);
+    }
+    print(), flag = !flag;
+    while (true) {
+        if (flag == aiColor) {
+            // 人机代码
+            p = pl.getNextStep();
+            core.modify(p.x, p.y);
+            pl.modify(p.x, p.y);
+            print();
+            flag = !flag;
 
-        if(core.numPieces > 2) {
-            pl.modifyDepth(2);
-            pl2.modifyDepth(2);
+            f = core.win_end();
+        } else {
+            // 人工代码
+            point a = getClick(flag);
+            if (a.x == -100) {
+                return -1;
+            }
+            while (!isOk(a))
+                a = getClick(flag);
+            while (!actions.empty())
+                actions.pop();
+            core.modify(a.x, a.y);
+            pl.modify(a.x, a.y);
+            print();
+            flag = !flag;
         }
-        if(core.numPieces > 27) {
-            pl.modifyDepth(1);
-            pl2.modifyDepth(1);
+        f = core.win_end();
+        if (f == 0) {
+            printf("White Win\n");
+            return win(0);
+        } else if (f == 1) {
+            printf("Black Win\n");
+            return win(1);
         }
-
     }
 }

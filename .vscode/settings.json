@@ -115,6 +115,8 @@
     "climits": "cpp",
     "ios": "cpp",
     "queue": "cpp",
-    "stack": "cpp"
+    "stack": "cpp",
+    "iomanip": "cpp",
+    "codecvt": "cpp"
   }
 }

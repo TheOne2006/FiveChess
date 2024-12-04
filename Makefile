@@ -37,7 +37,7 @@ OBJECTS		:= $(SOURCES:.cpp=.o)
 DEPS		:= $(OBJECTS:.o=.d)
 
 # define the link (need to add by hand)
-LINK		:= -leasyx
+LINK		:= -leasyx -lcomdlg32
 
 #
 # The following part of the makefile is generic; it can be used to

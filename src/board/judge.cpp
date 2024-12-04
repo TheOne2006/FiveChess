@@ -47,7 +47,7 @@ void Board::reset() {
     state.clear();
     state.insert(state.begin(), 255, -1);
     numPieces = 0;
-    currentPlayer = BLACK;
+    currentPlayer = MY_BLACK;
     availableAction.clear();
     for (size_t i = 0; i < 225; i++) {
         this->availableAction.push_back(i);
@@ -80,7 +80,7 @@ void Board::doAction(int action) {
     state[action] = currentPlayer;
     undoState[numPieces] = action;
     numPieces++;
-    currentPlayer = BLACK + WHITE - currentPlayer;
+    currentPlayer = MY_BLACK + MY_WHITE - currentPlayer;
     availableAction.clear();
     availableAction = getAvailable();
 }
@@ -120,7 +120,7 @@ void Board::undoOne() {
     numPieces--;
     preAction = undoState[numPieces - 1];
     // 置换下棋手
-    currentPlayer = BLACK + WHITE - currentPlayer;
+    currentPlayer = MY_BLACK + MY_WHITE - currentPlayer;
     availableAction.clear();
     availableAction = getAvailable();
 }
@@ -142,18 +142,18 @@ int Board::isGameOver() {
 
 int Board::win_end() {
     int last_player = this->currentPlayer ^ 1;
-    if (last_player == BLACK) {
+    if (last_player == MY_BLACK) {
         if (long_connect())
-            return WHITE;
+            return MY_WHITE;
         if (five_connect())
-            return BLACK;
+            return MY_BLACK;
         if (three_three())
-            return WHITE;
+            return MY_WHITE;
         if (four_four())
-            return WHITE;
+            return MY_WHITE;
     } else {
         if (this->five_connect())
-            return WHITE;
+            return MY_WHITE;
     }
     return notOver;
 }

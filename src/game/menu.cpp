@@ -1,6 +1,7 @@
 #include <game.h>
 #include <graphics.h>
 #include <menu.h>
+#include <myIO.h>
 
 bool myButton::isBeTouch(int dx, int dy) {
     return (dx >= dx1 && dx <= dx2 && dy >= dy1 && dy <= dy2);
@@ -9,58 +10,52 @@ bool myButton::isBeTouch(int dx, int dy) {
 class NextStepButton : public myButton {
   public:
     NextStepButton() {
-        dx1 = 40, dy1 = 535, dx2 = 80, dy2 = 555;
+        dx1 = 545, dy1 = 306, dx2 = 600, dy2 = 348;
         text = "Next";
     }
-    bool leftPut() { return nextDo(); }
-
-    void print() {
-        TCHAR s[] = _T("Next");
-        outtextxy(dx1, dy1, s);
+    bool leftPut() {
+        printf("Next\n");
+        nextDo();
+        return false;
     }
 };
 
 class LastStepButton : public myButton {
   public:
     LastStepButton() {
-        dx1 = 0, dy1 = 535, dx2 = 40, dy2 = 555;
+        dx1 = 545, dy1 = 214, dx2 = 600, dy2 = 250;
         text = "Last";
     }
 
-    bool leftPut() { return undo(); }
-
-    void print() {
-        TCHAR s[] = _T("Last");
-        outtextxy(dx1, dy1, s);
+    bool leftPut() {
+        printf("Undo\n");
+        undo();
+        return false;
     }
 };
 
 class WriteButton : public myButton {
   public:
     WriteButton() {
-        dx1 = 80, dy1 = 535, dx2 = 120, dy2 = 555;
+        dx1 = 545, dy1 = 115, dx2 = 600, dy2 = 154;
         text = "Write";
     }
-    bool leftPut() {}
-
-    void print() {
-        TCHAR s[] = _T("Write");
-        outtextxy(dx1, dy1, s);
+    bool leftPut() {
+        printf("Write to file\n");
+        my_io::writeToF(getCore(), getKind());
+        return false;
     }
 };
 
-class ReadButton : public myButton {
+class ReturnButton : public myButton {
   public:
-    ReadButton() {
-        dx1 = 120, dy1 = 535, dx2 = 160, dy2 = 555;
-        text = "Read";
+    ReturnButton() {
+        dx1 = 545, dy1 = 22, dx2 = 600, dy2 = 56;
+        text = "Return";
     }
-
-    bool leftPut() {}
-
-    void print() {
-        TCHAR s[] = _T("Read");
-        outtextxy(dx1, dy1, s);
+    bool leftPut() {
+        printf("Return to the start\n");
+        return true;
     }
 };
 
@@ -69,10 +64,10 @@ std::vector<myButton *> getAllButton() {
     ans.push_back(new NextStepButton());
     ans.push_back(new LastStepButton());
     ans.push_back(new WriteButton());
-    ans.push_back(new ReadButton());
+    ans.push_back(new ReturnButton());
     return ans;
 }
 
 bool myButton::leftPut() { return false; }
 // 一个普遍调用的绘图函数
-void myButton::print() { return; }
+void myButton::print(bool f) { return; }

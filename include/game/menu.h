@@ -13,7 +13,7 @@ class myButton {
     bool isBeTouch(int dx, int dy);
     virtual bool leftPut();
     // 一个普遍调用的绘图函数
-    virtual void print();
+    virtual void print(bool f);
 };
 
 std::vector<myButton *> getAllButton();
