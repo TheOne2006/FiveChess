@@ -1,5 +1,6 @@
 #include <judge.h>
 #include <string>
+#include <unordered_map>
 #include <value.h>
 #include <vector>
 #define INF 10000000;
@@ -50,29 +51,20 @@ valuePattern vsYou[21] = {
     {"0oo0o0", 180},
     {"0o0oo0", 180},
     // 死四
-    {"oo0oo", 6000},
-    {"oooo0", 6000},
-    {"0oooo", 6000},
-    {"ooo0o", 6000},
-    {"o0ooo", 6000},
+    {"oo0oo", 7000},
+    {"oooo0", 7000},
+    {"0oooo", 7000},
+    {"ooo0o", 7000},
+    {"o0ooo", 7000},
     // 活四
     {"0oooo0", 50000},
 };
 
-std::vector<valuePattern> hasDone;
+std::unordered_map<std::string, int> hasDone;
 
 // 基本评分思路：针对白棋的评分：计算活三活四
 // 当前是nflag下，对nflag的人进行计分
 int getValue(myBoard::Board *b, int nflag) {
-    int isWin = b->win_end();
-    // 判断能胜利便直接返回
-    if (isWin != b->notOver) {
-        if (isWin == nflag) {
-            return INF;
-        } else {
-            return -INF;
-        }
-    }
     std::string boardS;
     for (int i = 0; i < 15; i++) {
         for (int j = 0; j < 15; j++) {
@@ -84,9 +76,9 @@ int getValue(myBoard::Board *b, int nflag) {
                 boardS.append("o");
         }
     }
-    for (int i = 0; i < hasDone.size(); i++) {
-        if (hasDone[i].s == boardS)
-            return hasDone[i].v;
+    boardS.append(nflag ? "a" : "b"); // 特殊标记从什么角度看
+    if (hasDone.find(boardS) != hasDone.end()) {
+        return hasDone[boardS];
     }
     int value = 0;
     // 横向
@@ -174,24 +166,22 @@ int getValue(myBoard::Board *b, int nflag) {
                 value -= vsYou[k].v;
         }
     }
-    hasDone.push_back({boardS, value});
-    // // test
-    // if (value > 6000) {
-    //     printf("nflag:%d ---\n", nflag);
-    //     for (int j = 0; j < 15; j++) {
-    //         for (int i = 0; i < 15; i++) {
-    //             if (b->board[i][j] == -1) {
-    //                 printf(". ");
-    //             } else if (b->board[i][j] == nflag) {
-    //                 printf("o ");
-    //             } else {
-    //                 printf("* ");
-    //             }
+    hasDone[boardS] = value;
+    // test
+    // printf("nflag:%d ---\n", nflag);
+    // for (int j = 0; j < 15; j++) {
+    //     for (int i = 0; i < 15; i++) {
+    //         if (b->board[i][j] == -1) {
+    //             printf(". ");
+    //         } else if (b->board[i][j] == nflag) {
+    //             printf("o ");
+    //         } else {
+    //             printf("* ");
     //         }
-    //         printf("\n");
     //     }
-    //     printf("value:%d\n-------------\n", value);
+    //     printf("\n");
     // }
+    // printf("value:%d\n-------------\n", value);
 
     return value;
 }

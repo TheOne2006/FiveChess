@@ -107,8 +107,8 @@ void initiation() {
 
 void modifyDir(std::string s) { fileDirection = s; }
 
+// 校验码
 const std::string code = "aZ9dFp3eG8hJk2LmNq1O0WbVcRx4Tu7YSiP";
-
 
 std::wstring string_to_wstring(const std::string& str, int codepage = CP_UTF8) {
     int len = MultiByteToWideChar(codepage, 0, str.c_str(), -1, nullptr, 0);
@@ -148,7 +148,7 @@ std::vector<int> readFromF(std::string fileN) {
     std::string nowCode;
     file >> nowCode;
     if (nowCode != code) {
-        ans.push_back(-7);
+        ans.push_back(-7); // -7代表不合法
         return ans;
     }
     int action;

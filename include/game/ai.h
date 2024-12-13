@@ -1,5 +1,7 @@
 #ifndef AI_H
 #define AI_H
+#define WHITE_COLOR 0
+#define BLACK_COLOR 1
 #include <judge.h>
 #include <point.h>
 namespace ai {

@@ -116,7 +116,7 @@ class ReturnButton : public myButton {
 
 class WhiteButton : public myButton {
   private:
-    const int color = 1;
+    const int color = 0;
 
   public:
     WhiteButton() {
@@ -138,7 +138,7 @@ class WhiteButton : public myButton {
 
 class BlackButton : public myButton {
   private:
-    const int color = 0;
+    const int color = 1;
   public:
     BlackButton() {
         dx1 = 151, dy1 =355, dx2 = 186, dy2 = 370;

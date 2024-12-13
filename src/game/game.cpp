@@ -21,6 +21,7 @@ int getKind() { return gameKind; }
 
 IMAGE chess_board;
 std::vector<myButton *> buttons;
+ai::AI *aiPlayer;
 // 这一部分是对显示界面的控制
 // 重新根据core绘制整个屏幕
 void print() {
@@ -101,7 +102,7 @@ bool undo() {
         return false;
     actions.push(core.undoState[n - 1]);
     actions.push(core.undoState[n - 2]);
-    core.undo(), print();
+    core.undo(), print(), aiPlayer->undo();
     return true;
 }
 
@@ -173,7 +174,7 @@ bool modifyDepth(int d) { depth = d; }
 
 int getDepth() { return depth; }
 
-int aiColor = 0;
+int aiColor = 1;
 
 int getAIColor() { return aiColor; }
 
@@ -183,25 +184,44 @@ void modifyAi(int a) { aiColor = a; }
 // point的约束，如果point的x为-1代表会退出
 int gameSingleStart() {
     restart();
-    if (aiColor == 1)
+    if (aiColor == BLACK_COLOR)
         gameKind = 2;
     else
         gameKind = 1;
     int flag = 1, f;
     ai::AI pl = ai::AI(aiColor, depth);
+    aiPlayer = &pl;
     point p;
     // core.modify(6, 6), pl.modify(6, 6), pl2.modify(6, 6);
-    print(), flag = !flag;
+    print();
     while (true) {
         if (flag == aiColor) {
             // 人机代码
             p = pl.getNextStep();
             core.modify(p.x, p.y);
             pl.modify(p.x, p.y);
-            print();
+            printf("AI choose %d %d\n", p.x, p.y);
+            print(), printEdge(p, aiColor);
             flag = !flag;
 
-            f = core.win_end();
+            // p = pl.getNextStep();
+            // printf("AI choose %d %d\n", p.x, p.y);
+            // point a = getClick(flag);
+            // if (a.x == -100) {
+            //     return -1;
+            // }
+            // while (!isOk(a)) {
+            //     a = getClick(flag);
+            //     if (a.x == -100) {
+            //         return -1;
+            //     }
+            // }
+            // while (!actions.empty())
+            //     actions.pop();
+            // core.modify(a.x, a.y);
+            // pl.modify(a.x, a.y);
+            // print();
+            // flag = !flag;
         } else {
             // 人工代码
             point a = getClick(flag);
@@ -237,7 +257,7 @@ int gameTwoStart() {
     int flag = 1, f;
     point p;
     // core.modify(6, 6), pl.modify(6, 6), pl2.modify(6, 6);
-    print(), flag = !flag;
+    print();
     while (true) {
         // 人工代码
         point a = getClick(flag);
@@ -304,18 +324,19 @@ int gameLoadStart(std::vector<int> steps) {
         }
     } else {
         if (steps[0] == 1) {
-            aiColor = 0;
+            aiColor = WHITE_COLOR;
         } else {
-            aiColor = 1;
+            aiColor = BLACK_COLOR;
         }
         // 人对战AI
-        if (aiColor == 0) {
+        if (aiColor == WHITE_COLOR) {
             gameKind = 1;
         } else {
             gameKind = 2;
         }
         int flag = 1, f;
         ai::AI pl = ai::AI(aiColor, depth);
+        aiPlayer = &pl;
         point p;
         // core.modify(6, 6), pl.modify(6, 6), pl2.modify(6, 6);
         for (int i = 1; i < steps.size(); i++) {

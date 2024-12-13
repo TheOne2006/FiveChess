@@ -45,8 +45,6 @@ struct Situation {
     int p;
 };
 
-valuePattern liveFour[100];
-
 bool judegeLiveFour(int i, int j, int flag) {
     std::string four = "011110", m;
     // 横线
@@ -141,19 +139,34 @@ std::vector<Situation> getAvailable(int flag) {
     }
 
     // 考虑没下了之后如果必输的点
-    // 先直接修改currentPlayer为对方
     if (permis < 4) {
-        int px, py;
+        int px = 0, py = 0;
         bool fa = true;
         for (px = 0; px < 15 && fa; px++)
-            for (py = 0; py < 15 && fa; py++)
-                fa = isNear(px, py);
-        bb.modify(px, py);
+            for (py = 0; py < 15 && fa; py++) {
+                if (!isNear(px, py)) {
+                    bb.modify(px, py), fa = false;
+                }
+            }
 
         for (int i = 0; i < 15; i++) {
             for (int j = 0; j < 15; j++) {
                 if (bb.board[i][j] == -1 && isNear(i, j)) {
                     bb.modify(i, j);
+                    // //搜索
+                    // for (int j = 0; j < 15; j++) {
+                    //     for (int i = 0; i < 15; i++) {
+                    //         if (bb.board[i][j] == -1) {
+                    //             printf(". ");
+                    //         } else if (bb.board[i][j] == 0) {
+                    //             printf("o ");
+                    //         } else {
+                    //             printf("* ");
+                    //         }
+                    //     }
+                    //     printf("\n");
+                    // }
+
                     int isWin = bb.win_end();
                     if (isWin == 1 - flag) {
                         myBoard::point p;
@@ -192,19 +205,22 @@ std::vector<Situation> getAvailable(int flag) {
 
     // 考虑对方下了成活四的点
     if (permis < 2) {
-        int px, py;
+        int px = 0, py = 0;
         bool fa = true;
         for (px = 0; px < 15 && fa; px++)
-            for (py = 0; py < 15 && fa; py++)
-                fa = isNear(px, py);
-        bb.modify(px, py);
+            for (py = 0; py < 15 && fa; py++) {
+                if (!isNear(px, py)) {
+                    bb.modify(px, py), fa = false;
+                }
+            }
+
         for (int i = 0; i < 15; i++) {
             for (int j = 0; j < 15; j++) {
                 if (bb.board[i][j] == -1 && isNear(i, j)) {
                     bb.modify(i, j);
                     int isWin = bb.win_end();
                     if (isWin == bb.notOver) {
-                        if (judegeLiveFour(i, j, flag)) {
+                        if (judegeLiveFour(i, j, 1 - flag)) {
                             myBoard::point p;
                             p.initiationWithXY(i, j);
                             readyPut.push_back({p, 0});
@@ -236,7 +252,7 @@ std::vector<Situation> getAvailable(int flag) {
     for (int i = 0; i < readyPut.size(); i++) {
         myBoard::point p = readyPut[i].t;
         bb.modify(p.x, p.y);
-        readyPut[i].p = getValue(&bb, flag);
+        readyPut[i].p = getValue(&bb, 1 - flag); // 下了这个点后给个评分
         bb.undoOne();
     }
     return readyPut;
@@ -244,30 +260,20 @@ std::vector<Situation> getAvailable(int flag) {
 
 bool compare(const Situation &s1, const Situation &s2) { return s1.p > s2.p; }
 
-int kq = 0;
 myBoard::point AI::getNextStep() {
-    kq++;
-    bb = *core, de = this->depth;
+    bb = *core;
+    int nowValue = getValue(&bb, flag);
+    if (nowValue > 300)
+        de = 2;
+    else
+        de = this->depth;
     std::vector<Situation> readyPut;
     if (bb.numPieces) {
-        // readyPut = getAvailable(flag);
-        for (int i = 0; i < 15; i++) {
-            for (int j = 0; j < 15; j++) {
-                if (bb.board[i][j] == -1 && isNear(i, j)) {
-                    myBoard::point p;
-                    p.initiationWithXY(i, j);
-                    bb.doAction(p.p);
-                    readyPut.push_back({p, getValue(&bb, flag)});
-                    bb.undoOne();
-                }
-            }
-        }
+        readyPut = getAvailable(flag);
     } else {
         myBoard::point p;
-        p.initiationWithXY(7, 7), bb.modify(7, 7);
-        int score = getValue(&bb, 1 - flag);
-        readyPut.push_back({p, score});
-        bb.undoOne();
+        p.initiationWithXY(7, 7);
+        return p;
     }
     // printf("initiate:%d\n", kq);
     // for (int j = 0; j < 15; j++) {
@@ -318,9 +324,6 @@ myBoard::point AI::getNextStep() {
     return ans[ra % ans.size()];
 }
 
-// 表示四个方向
-int dire[16][2] = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-
 bool isIn(int x, int y) { return (x >= 0) && (x < 15) && (y >= 0) && (y < 15); }
 
 bool isNear(int x, int y) {
@@ -342,27 +345,30 @@ bool isNear(int x, int y) {
 // Rap 表示搜索树上的下限，利用alpha-beta剪枝
 // 剪枝第二个策略：搜索时先对节点给个估值
 int getNext(int nflag, int d, int alpha, int beta) {
-    if (d == de)
-        return getValue(&bb, nflag);
-    std::vector<Situation> readyPut;
-    // readyPut = getAvailable(nflag);
-    for (int i = 0; i < 15; i++) {
-        for (int j = 0; j < 15; j++) {
-            if (bb.board[i][j] == -1 && isNear(i, j)) {
-                myBoard::point p;
-                p.initiationWithXY(i, j);
-                bb.doAction(p.p);
-                readyPut.push_back({p, getValue(&bb, nflag)});
-                bb.undoOne();
+    if (alpha >= beta)
+        return alpha;
+    if (d == de) {
+        int isWin = bb.win_end();
+        // 判断能胜利便直接返回
+        if (isWin != bb.notOver) {
+            if (isWin == nflag) {
+                return INF;
+            } else {
+                return -INF;
             }
         }
+        return getValue(&bb, nflag);
     }
+    std::vector<Situation> readyPut;
+    readyPut = getAvailable(nflag); // 获得评分
     std::sort(readyPut.begin(), readyPut.end(), compare);
-    // 进行搜索，先进行简单剪枝
+    // printf("first:%d last:%d\n\n", readyPut.begin()->p,
+    // readyPut[readyPut.size() - 1].p);
+    //  进行搜索，先进行简单剪枝
     myBoard::point now;
-    int score = -INF;
-    int si = readyPut.size();
-    while (readyPut.size() > 0) {
+    int originSize = readyPut.size();
+    // 判断条件
+    while (readyPut.size() * 4 > originSize && originSize - readyPut.size() <= 6) {
         now = readyPut[readyPut.size() - 1].t, readyPut.pop_back();
         bb.doAction(now.p);
         int isWin = bb.win_end();
@@ -379,29 +385,14 @@ int getNext(int nflag, int d, int alpha, int beta) {
         }
         // 以下了一步棋后的所有局面的最小值的相反数作为该局面的最大值
         // bottom 表示这颗节点的母节点上的另外一个分支得到的值
-        int t = -getNext(1 - nflag, d + 1, -beta, -alpha);
-        score = std::max(t, score);
-        alpha = std::max(alpha, score);
+        int val = -getNext(1 - nflag, d + 1, -beta, -alpha);
         bb.undoOne();
+        alpha = std::max(alpha, val);
         if (alpha >= beta) {
-            return score;
+            return alpha;
         }
     }
-    // //会被考察的点
-    // //test
-    // printf("nflag:%d d:%d score:%d :\n", nflag, d, score);
-    // for (int j = 0; j < 15; j++) {
-    //     for (int i = 0; i < 15; i++) {
-    //         if (bb.board[i][j] == -1) {
-    //             printf(". ");
-    //         } else if (bb.board[i][j] == 0) {
-    //             printf("o ");
-    //         } else {
-    //             printf("* ");
-    //         }
-    //     }
-    //     printf("\n");
-    // }
-    // printf("\n-------------\n");
-    return score;
+    // 会被考察的点
+    // test
+    return alpha;
 }
