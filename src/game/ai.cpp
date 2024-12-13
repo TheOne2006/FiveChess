@@ -368,7 +368,7 @@ int getNext(int nflag, int d, int alpha, int beta) {
     myBoard::point now;
     int originSize = readyPut.size();
     // 判断条件
-    while (readyPut.size() * 4 > originSize && originSize - readyPut.size() <= 6) {
+    while (readyPut.size() * 4 > originSize && originSize - readyPut.size() <= 10) {
         now = readyPut[readyPut.size() - 1].t, readyPut.pop_back();
         bb.doAction(now.p);
         int isWin = bb.win_end();
