@@ -82,7 +82,7 @@ class ComplexButton : public myButton {
 
 class MasterButton : public myButton {
   private:
-    const int depth = 4;
+    const int depth = 5;
 
   public:
     MasterButton() {
@@ -180,7 +180,8 @@ bool waitClick() {
 }
 
 bool start() {
-    loadimage(&settingFace, _T("D:/WorkSpace/FiveChess/res/setting.png"));
+    std::string imagePath = my_io::getNFileDirection() + "\\res\\setting.png";
+    loadimage(&settingFace, _T(imagePath.c_str()));
     if (buttons.empty()) {
         buttons.push_back(new SimpleButton());
         buttons.push_back(new ComplexButton());

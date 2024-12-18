@@ -252,6 +252,7 @@ std::vector<Situation> getAvailable(int flag) {
     for (int i = 0; i < readyPut.size(); i++) {
         myBoard::point p = readyPut[i].t;
         bb.modify(p.x, p.y);
+        // 以对方的视角进行评分
         readyPut[i].p = getValue(&bb, 1 - flag); // 下了这个点后给个评分
         bb.undoOne();
     }

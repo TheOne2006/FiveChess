@@ -1,5 +1,6 @@
 #ifndef IO_H
 #define IO_H
+#include <string>
 #include <game.h>
 namespace my_io {
 // 写入文件，文件名为当前时间
@@ -14,6 +15,8 @@ void modifyDir(std::string s);
 std::string SelectFolder();
 
 std::string SelectFile();
+
+std::string getNFileDirection();
 } // namespace my_io
 
 #endif

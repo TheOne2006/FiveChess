@@ -10,11 +10,14 @@
 #include <windows.h>
 using namespace my_io;
 namespace my_io {
-std::string fileDirection;
-
 // 需要链接 Shell32.lib 库
-
 #pragma comment(lib, "Shell32.lib")
+std::string fileDirection;
+std::string nFileDirecton;
+
+std::string getNFileDirection() {
+    return nFileDirecton;
+}
 
 std::string WStringToString(const std::wstring &wstr) {
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
@@ -103,6 +106,7 @@ void initiation() {
     size_t pos = fullPath.find_last_of("\\");
     // 提取路径部分
     fileDirection = fullPath.substr(0, pos) + "\\";
+    nFileDirecton = fileDirection;
 }
 
 void modifyDir(std::string s) { fileDirection = s; }

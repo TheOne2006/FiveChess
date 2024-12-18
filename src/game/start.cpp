@@ -131,7 +131,8 @@ bool waitClick() {
 void start() {
     bool f = true;
     while (true) {
-        loadimage(&startFace, _T("D:/WorkSpace/FiveChess/res/start.png"));
+        std::string imagePath = my_io::getNFileDirection() + "\\res\\start.png";
+        loadimage(&startFace, _T(imagePath.c_str()));
         if (buttons.empty()) {
             buttons.push_back(new SettingButton());
             buttons.push_back(new TwoPlayButton());

@@ -44,7 +44,8 @@ void print() {
 
 // 对界面的一个初始化
 void initiation() {
-    loadimage(&chess_board, _T("D:/WorkSpace/FiveChess/res/board.png"));
+    std::string imagePath = my_io::getNFileDirection() + "\\res\\board.png";
+    loadimage(&chess_board, _T(imagePath.c_str()));
     initgraph(620, 555);
     print();
 }
